@@ -46,37 +46,15 @@
  <h2>สวัสดีครับผม</h2>
 
  <form action="#" method="post" name="flexJson">
-    <label for="alttext">alttext:</label><br>
-    <div class="input-group">
-        <input type="text" id="alttext" name="alttext">
-        <button type="button" onclick="clearInput('alttext')">Clear Input</button>
-    </div>
-    
     <label for="message">Message:</label><br>
     <div class="input-group">
         <textarea id="message" name="message"></textarea>
         <button type="button" onclick="clearInput('message')">Clear Input</button>
     </div>
-
-    <label for="flexjson">flexjson:</label><br>
-    <div class="input-group">
-        <textarea id="flexjson" name="flexjson"></textarea>
-        <button type="button" onclick="clearInput('flexjson')">Clear Input</button>
-    </div>
-
-    <label for="imageUrl">Image URL:</label><br>
-    <div class="input-group">
-        <input type="text" id="imageUrl" name="imageUrl">
-        <button type="button" onclick="clearInput('imageUrl')">Clear Input</button>
-    </div>
 </form>
     
     <div class="info-row">
-        <p id="os"><b>OS:</b> </p>
-        <p id="language"><b>Language:</b> </p>
-        <p id="version"><b>Version:</b> </p>
-        <p id="isInClient"><b>isInClient:</b> </p>
-        <p id="accessToken"><b>AccessToken:</b> </p>
+       <p id="accessToken"><b>AccessToken:</b> </p>
     </div>
 
     <div class="user-info">
@@ -92,10 +70,7 @@
 
     <button id="btnMsg" onclick="sendMsg()">Send Message</button>
     <button id="btnShare" onclick="shareMsg()">Share Target Picker</button>
-    <button onclick="openWindow()">Open Window</button>
-    <button id="btnScanCode" onclick="scanCode()">Scan Code</button>
     <button id="btnLogOut" onclick="logOut()">Log Out</button>
-    <button id="btnClose" onclick="closed()">Close</button>
       
   <script>
         document.getElementById("btnClip").addEventListener("click", async function() {
@@ -112,42 +87,10 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
     async function shareMsg() {
-  const alttext = document.getElementById("alttext").value;
-  const flexjsonInput = document.getElementById("flexjson").value;
+      
   const message = document.getElementById("message").value;
-  const imageUrl = document.getElementById("imageUrl").value;
 
   const contents = [];
-
- 
-
-  if (alttext.trim() && flexjsonInput.trim()) {
-    const flexjson = JSON.parse(flexjsonInput);
-    contents.push({
-      'type': 'flex',
-      'altText': alttext,
-      'contents': flexjson
-    });
-  }
-      if (imageUrl.trim()) {
-    contents.push({
-      type: "image",
-      originalContentUrl: imageUrl,
-      previewImageUrl: imageUrl
-    });
-  }
- if (message.trim()) {
-    contents.push({
-      type: "text",
-      text: message,
-    });
-  }
-  
-
-  if (contents.length === 0) {
-    alert("alttext หรือ flexjson หรือ message หรือ image url ไม่สามารถว่างเปล่าได้");
-    return;
-  }
 
   liff
   .shareTargetPicker(contents)
@@ -162,28 +105,9 @@
     console.log("something wrong happen");
   });
 }
-
-
-    
     function logOut() {
       liff.logout()
       window.location.reload()
-    }
-
-    function closed() {
-      liff.closeWindow()
-    }
-
-    async function scanCode() {
-      const result = await liff.scanCode()
-      document.getElementById("scanCode").append(result.value)
-    }
-    
-    function openWindow() {
-      liff.openWindow({
-        url: "https://line.me",
-        external: true
-      })
     }
     async function getUserProfile() {
       const profile = await liff.getProfile()
