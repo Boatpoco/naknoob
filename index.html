@@ -1,150 +1,141 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover">
-  <title>naknoob</title>
-  <link rel="stylesheet" href="css/style.css">
-<style>
-    body {
-        font-family: Arial, sans-serif;
-    }
-    .info-row {
-        display: flex;
-        gap: 20px;
-        align-items: baseline;
-    }
-    form, p {
-        margin-bottom: 15px;
-    }
-    .input-group {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    input[type="text"], textarea {
-        width: 50%;
-        padding: 10px;
-    }
-    button {
-        margin-right: 10px;
-    }
-    textarea {
-        min-height: 100px;
-        resize: vertical;
-        vertical-align: top;
-        text-align: left;
-    }
-  </style>
-
-  <script>
-    function clearInput(elementId) {
-        document.getElementById(elementId).value = '';
-    }
-</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>naknoob</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f3f3f3;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            min-height: 100px;
+            resize: vertical;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .user-info img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .user-details {
+            flex-grow: 1;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
- <h2>สวัสดีครับผม</h2>
+    <div class="container">
+        <h2>สวัสดีครับผม</h2>
 
- <form action="#" method="post" name="flexJson">
-    <label for="message">Message:</label><br>
-    <div class="input-group">
-        <textarea id="message" name="message"></textarea>
-        <button type="button" onclick="clearInput('message')">Clear Input</button>
-    </div>
-</form>
-    
-    <div class="info-row">
-       <p id="accessToken"><b>AccessToken:</b> </p>
-    </div>
+        <form action="#" method="post">
+            <div class="input-group">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message"></textarea>
+            </div>
+            <button type="button" onclick="clearInput('message')">Clear Input</button>
+            <button type="button" id="btnShare" onclick="shareMsg()">Share Target Picker</button>
+            <button type="button" id="btnLogOut" onclick="logOut()">Log Out</button>
+        </form>
 
-    <div class="user-info">
-        <img id="pictureUrl">
-        <div class="user-details">
-            <p id="userId"><b>userID</b> </p>
-            <p id="displayName"><b>displayName:</b> </p>
-            <p id="statusMessage"><b>statusMessage:</b> </p>
-            <p id="decodedIDToken"><b>email:</b> </p>
-            <p id="isLoggedIn"><b>isLoggedIn:</b> </p>
+        <div class="user-info">
+            <img id="pictureUrl" src="" alt="User">
+            <div class="user-details">
+                <p id="userId"><b>UserID:</b> </p>
+                <p id="displayName"><b>DisplayName:</b> </p>
+                <p id="statusMessage"><b>StatusMessage:</b> </p>
+                <p id="decodedIDToken"><b>Email:</b> </p>
+            </div>
         </div>
     </div>
 
-    <button id="btnMsg" onclick="sendMsg()">Send Message</button>
-    <button id="btnShare" onclick="shareMsg()">Share Target Picker</button>
-    <button id="btnLogOut" onclick="logOut()">Log Out</button>
-      
-  <script>
-        document.getElementById("btnClip").addEventListener("click", async function() {
-            const text = await navigator.clipboard.readText();
-            document.getElementById("flexjson").value = text;
-        });
+    <script>
+        async function main() {
+            await liff.init({ liffId: "2002337292-njMY8LR6" });
+            liff.ready.then(() => {
+                if (liff.isLoggedIn()) {
+                    getUserProfile();
+                } else {
+                    liff.login();
+                }
+            });
+        }
+
+        async function getUserProfile() {
+            const profile = await liff.getProfile();
+            document.getElementById("pictureUrl").src = profile.pictureUrl;
+            document.getElementById("userId").textContent += profile.userId;
+            document.getElementById("statusMessage").textContent += profile.statusMessage;
+            document.getElementById("displayName").textContent += profile.displayName;
+            document.getElementById("decodedIDToken").textContent += liff.getDecodedIDToken().email;
+        }
+
+        function clearInput(elementId) {
+            document.getElementById(elementId).value = '';
+        }
+
+        async function shareMsg() {
+            try {
+                const messageContent = document.getElementById("message").value;
+                const contents = JSON.parse(messageContent); // Ensure this is a valid JSON array
+                const res = await liff.shareTargetPicker(contents);
+                if (res) {
+                    console.log(`[${res.status}] Message sent!`);
+                } else {
+                    console.log("TargetPicker was closed!");
+                }
+            } catch (error) {
+                console.log("Error: ", error);
+            }
+        }
+
+        function logOut() {
+            liff.logout();
+            window.location.reload();
+        }
+
+        main();
     </script>
-  <script src="js/vconsole.min.js"></script>
-  <script>
-    var vConsole = new VConsole()
-    console.log("Hello World!")
-  </script>
-
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script>
-    async function shareMsg() {
-      
-  const message = document.getElementById("message").value;
-
-  const contents = [];
-
-  liff
-  .shareTargetPicker(message)
-  .then(function (res) {
-    if (res) {
-      console.log(`[${res.status}] Message sent!`);
-    } else {
-      console.log("TargetPicker was closed!");
-    }
-  })
-  .catch(function (error) {
-    console.log("something wrong happen");
-  });
-}
-    function logOut() {
-      liff.logout()
-      window.location.reload()
-    }
-    async function getUserProfile() {
-      const profile = await liff.getProfile()
-      document.getElementById("pictureUrl").src = profile.pictureUrl
-      document.getElementById("userId").append(profile.userId)
-      document.getElementById("statusMessage").append(profile.statusMessage)
-      document.getElementById("displayName").append(profile.displayName)
-      document.getElementById("decodedIDToken").append(liff.getDecodedIDToken().email)
-    }
-    
-    function getEnvironment() {
-      document.getElementById("os").append(liff.getOS())
-      document.getElementById("language").append(liff.getLanguage())
-      document.getElementById("version").append(liff.getVersion())
-      document.getElementById("accessToken").append(liff.getAccessToken())
-      if (liff.isInClient()) {
-        document.getElementById("btnLogOut").style.display = "none"
-      } else {
-        document.getElementById("btnMsg").style.display = "none"
-        document.getElementById("btnScanCode").style.display = "none"
-        document.getElementById("btnClose").style.display = "none"
-      }
-    }
-
-   async function main() {
-  liff.ready.then(() => {
-    document.getElementById("isLoggedIn").append(liff.isLoggedIn())
-    if (liff.isLoggedIn()) {
-      getEnvironment()
-      getUserProfile()
-    } else {
-      liff.login()
-    }
-  })
-  await liff.init({ liffId: "2002337292-njMY8LR6" })
-}
-    main()
-  </script>
 </body>
 </html>
